@@ -6,6 +6,9 @@ A BepInEx plugin that lets you adjust the minimap:
 - **Zoom** → how much of the map the minimap camera shows
   - Higher zoom value = zoomed out (see more of the map)
   - Lower zoom value = zoomed in (see less)
+- **Always Show Boss** → if boss arrow should be visible before you spot the portal
+  - true: the minimap creates the boss arrow immediately.
+  - false: the arrow only appears after the portal is spotted (default behaviour).
 
 ---
 
@@ -23,4 +26,8 @@ Size = 1.5
 ## Higher = zoomed out (see more of the map).
 ## Lower = zoomed in (see less).
 Zoom = 110
+
+## If true, the minimap creates the boss arrow immediately.
+## If false, the arrow only appears after the portal is spotted (default behaviour).
+AlwaysShowBossArrow = false
 ```
