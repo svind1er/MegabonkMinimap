@@ -5,6 +5,8 @@ using Assets.Scripts.Camera;
 using HarmonyLib;
 using UnityEngine;
 using BepInEx.Configuration;
+using System.Reflection;
+using System;
 
 namespace MegabonkMinimap
 {
@@ -15,7 +17,7 @@ namespace MegabonkMinimap
             MODNAME = "MegabonkMinimap",
             AUTHOR = "svindler",
             GUID = AUTHOR + "_" + MODNAME,
-            VERSION = "0.1.0";
+            VERSION = "0.3.0";
 
         public static ManualLogSource log;
 
@@ -70,22 +72,23 @@ namespace MegabonkMinimap
         [HarmonyPatch(typeof(Assets.Scripts.Camera.MinimapCamera), "TrySpotBossSpawner")]
         public static class MinimapCamera_TrySpotBossSpawner_Patch
         {
+            private static readonly PropertyInfo BossSpawnerProp =
+                AccessTools.Property(typeof(Assets.Scripts.Camera.MinimapCamera), "bossSpawner");
+
             private static bool Prefix(Assets.Scripts.Camera.MinimapCamera __instance)
             {
-                if (__instance == null || __instance.bossSpawner == null)
-                    return true;
+                if (__instance == null) return true;
+
+                var spawnerTf = BossSpawnerProp?.GetValue(__instance) as Transform;
+                if (spawnerTf == null) return true;
 
                 if (Plugin.AlwaysShowBoss.Value && !__instance.bossSpotted)
                 {
-                    var tf = (__instance.bossSpawner as Component)?.transform;
-                    if (tf != null)
-                    {
-                        __instance.AddArrow(tf, __instance.bossColor);
-                        __instance.bossSpotted = true;
-                    }
-
+                    __instance.AddArrow(spawnerTf, __instance.bossColor);
+                    __instance.bossSpotted = true;
                     return false;
                 }
+
                 return true;
             }
         }
