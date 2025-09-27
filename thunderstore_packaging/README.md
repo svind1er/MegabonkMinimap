@@ -1,0 +1,2 @@
+# MEGABONK_SIMPLE_MOD
+Details
