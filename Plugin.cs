@@ -21,6 +21,7 @@ namespace MegabonkMinimap
 
         internal static ConfigEntry<float> MinimapSize;
         internal static ConfigEntry<float> MinimapZoom;
+        internal static ConfigEntry<bool> AlwaysShowBoss;
 
         public Plugin() => log = Log;
 
@@ -38,6 +39,12 @@ namespace MegabonkMinimap
                 "Lower = zoomed in (see less)."
             );
 
+            AlwaysShowBoss = Config.Bind(
+                "Minimap", "AlwaysShowBossArrow", false,
+                "If true, the minimap creates the boss arrow immediately.\n" +
+                "If false, the arrow only appears after the portal is spotted (default behaviour)."
+            );
+
             log.LogInfo($"Loading {MODNAME} v{VERSION} by {AUTHOR}");
             var harmony = new Harmony(GUID);
             harmony.PatchAll();
@@ -47,10 +54,7 @@ namespace MegabonkMinimap
         [HarmonyPatch(typeof(MinimapUi), "UpdateScale")]
         public static class MinimapUi_UpdateScale_Patch
         {
-            private static void Prefix(ref float scale)
-            {
-                scale = Plugin.MinimapSize.Value;
-            }
+            private static void Prefix(ref float scale) => scale = Plugin.MinimapSize.Value;
         }
 
         [HarmonyPatch(typeof(MinimapCamera), "Start")]
@@ -59,8 +63,30 @@ namespace MegabonkMinimap
             private static void Postfix(MinimapCamera __instance)
             {
                 if (__instance?.minimapCamera == null) return;
-
                 __instance.minimapCamera.orthographicSize = Plugin.MinimapZoom.Value;
+            }
+        }
+
+        [HarmonyPatch(typeof(Assets.Scripts.Camera.MinimapCamera), "TrySpotBossSpawner")]
+        public static class MinimapCamera_TrySpotBossSpawner_Patch
+        {
+            private static bool Prefix(Assets.Scripts.Camera.MinimapCamera __instance)
+            {
+                if (__instance == null || __instance.bossSpawner == null)
+                    return true;
+
+                if (Plugin.AlwaysShowBoss.Value && !__instance.bossSpotted)
+                {
+                    var tf = (__instance.bossSpawner as Component)?.transform;
+                    if (tf != null)
+                    {
+                        __instance.AddArrow(tf, __instance.bossColor);
+                        __instance.bossSpotted = true;
+                    }
+
+                    return false;
+                }
+                return true;
             }
         }
     }

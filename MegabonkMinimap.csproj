@@ -26,6 +26,9 @@
     <Reference Include="Il2CppInterop.Runtime">
       <HintPath>Libs\Il2CppInterop.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>..\..\..\Steam\steamapps\common\Megabonk\BepInEx\interop\Il2Cppmscorlib.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\..\Steam\steamapps\common\Megabonk\BepInEx\interop\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
